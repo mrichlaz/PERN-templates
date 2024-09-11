@@ -1,0 +1,47 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "${BACKEND_PORT}:8080"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - DB_HOST=database
+      - DB_PORT=${DATABASE_PORT}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB}
+    networks:
+      - pern-network
+    volumes:
+      - ./backend:/backend:delegated
+    depends_on:
+      - database  
+  
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    environment:
+      - REACT_APP_ENV=${REACT_APP_ENV}
+      - FRONTEND_PORT=${FRONTEND_PORT}
+    networks:
+      - pern-network
+    volumes:
+      - ./frontend:/frontend:delegated
+
+  database:
+    image: postgres:latest
+    ports:
+      - "${DATABASE_PORT}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+
+networks:
+  pern-network:
+    driver: bridge
